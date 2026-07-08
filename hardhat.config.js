@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("./tasks/handson");
 
 // 秘密鍵は .env から(docker compose の env_file で注入される。設計書§5)。
 // MetaMask のエクスポートは 0x 無しのことがあるため、ここで補う(当日の事故防止)。
@@ -7,7 +8,14 @@ const accounts = rawKey ? [rawKey.startsWith("0x") ? rawKey : `0x${rawKey}`] : [
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.28",
+  solidity: {
+    version: "0.8.28",
+    settings: {
+      // OpenZeppelin 5.6 が Cancun の mcopy 命令を使う。
+      // Hardhat network / Polygon Amoy(Napoliアップグレード済み) は両方 Cancun 対応。
+      evmVersion: "cancun",
+    },
+  },
   networks: {
     // Part3 背骨: コンテナ内で稼働するローカルチェーン(npx hardhat node)
     localhost: {

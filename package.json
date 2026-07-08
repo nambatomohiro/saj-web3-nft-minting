@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "description": "SAJ web3ビジネス研究会 NFT発行ハンズオン(練習台)",
+  "scripts": {
+    "test": "hardhat test",
+    "deploy": "hardhat --network localhost deploy",
+    "deploy:amoy": "hardhat --network amoy deploy",
+    "mint": "hardhat --network localhost mint",
+    "mint:amoy": "hardhat --network amoy mint",
+    "check-membership": "hardhat --network localhost check-membership",
+    "check-membership:amoy": "hardhat --network amoy check-membership",
+    "transfer": "hardhat --network localhost transfer",
+    "transfer:amoy": "hardhat --network amoy transfer",
+    "burn": "hardhat --network localhost burn",
+    "burn:amoy": "hardhat --network amoy burn"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "hardhat": "^2.24.0"
