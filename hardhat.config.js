@@ -14,6 +14,8 @@ module.exports = {
       // OpenZeppelin 5.6 が Cancun の mcopy 命令を使う。
       // Hardhat network / Polygon Amoy(Napoliアップグレード済み) は両方 Cancun 対応。
       evmVersion: "cancun",
+      // デプロイガス削減(faucetのPOLでも余裕を持たせる)
+      optimizer: { enabled: true, runs: 200 },
     },
   },
   networks: {
