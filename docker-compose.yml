@@ -1,0 +1,23 @@
+# SAJ Web3 NFT ハンズオン(設計書§5)
+#
+# 参加者導線:
+#   cp .env.example .env         # Part4(Amoy)まで追随する人のみ記入
+#   docker compose up            # ローカルチェーン(Hardhat node)起動
+#   docker compose exec hardhat <コマンド>
+services:
+  hardhat:
+    # 当日は事前ビルド済みイメージを pull して使う(設計書§5)。
+    # レジストリ確定(設計書§10)後に ghcr.io/nambatomohiro/saj-nft:latest 等へ変更する。
+    image: saj-nft:latest
+    build: .
+    command: npx hardhat node --hostname 0.0.0.0
+    ports:
+      - "8545:8545" # ホストの MetaMask から localhost:8545 で接続可能に
+    env_file:
+      # 背骨(ローカルチェーン)は .env が無くても動くよう required: false。
+      # Amoy(Part4)には SEMINAR_PRIVATE_KEY / AMOY_RPC_URL が必要。
+      - path: .env
+        required: false
+    volumes:
+      - .:/app # ソースはマウント(参加者が Solidity コードを読める)
+      - /app/node_modules # イメージ焼き込みの node_modules を匿名ボリュームで保護

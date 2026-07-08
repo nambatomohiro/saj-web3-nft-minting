@@ -1,0 +1,13 @@
+{
+  "name": "saj-web3-nft-minting",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SAJ web3ビジネス研究会 NFT発行ハンズオン(練習台)",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.24.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  }
+}
