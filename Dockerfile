@@ -10,8 +10,14 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# TODO(コントラクト実装後): ここで npx hardhat compile を実行し、
-# solc コンパイラを /root/.cache に事前ダウンロードしておく(当日のDL待ち・wifi事故対策)
+# コントラクト一式をCOPYして一度コンパイルし、solc コンパイラを
+# /root/.cache に焼き込む(当日のDL待ち・wifi事故対策)。
+# 実行時は docker-compose.yml が /app にソースをマウントして上書きするため、
+# ここでのCOPYは solc キャッシュを温めるのが目的。
+COPY hardhat.config.js ./
+COPY tasks/ tasks/
+COPY contracts/ contracts/
+RUN npx hardhat compile
 
 # ローカルチェーン(Hardhat node)の JSON-RPC ポート
 EXPOSE 8545
