@@ -4,6 +4,10 @@
 # - イベント前に事前ビルドしてレジストリへ push し、参加者は docker pull するだけにする
 FROM node:20
 
+# ghcr.io のパッケージをこのリポジトリに紐付ける
+LABEL org.opencontainers.image.source="https://github.com/nambatomohiro/saj-web3-nft-minting"
+LABEL org.opencontainers.image.description="SAJ Web3 NFT発行ハンズオン(練習台)実行環境"
+
 WORKDIR /app
 
 # 依存定義のみ COPY → npm ci で node_modules を焼き込む

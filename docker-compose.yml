@@ -6,10 +6,12 @@
 #   docker compose exec hardhat <コマンド>
 services:
   hardhat:
-    # 当日は事前ビルド済みイメージを pull して使う(設計書§5)。
-    # レジストリ確定(設計書§10)後に ghcr.io/nambatomohiro/saj-nft:latest 等へ変更する。
-    image: saj-nft:latest
+    # 事前ビルド済みイメージ(amd64/arm64)を pull して使う(設計書§5)。
+    # 開発時の再ビルドは docker compose build。
+    image: ghcr.io/nambatomohiro/saj-nft:latest
     build: .
+    # イメージ未取得で up されたら(pull忘れ)、その場ビルドではなく pull する
+    pull_policy: missing
     command: npx hardhat node --hostname 0.0.0.0
     ports:
       - "8545:8545" # ホストの MetaMask から localhost:8545 で接続可能に
