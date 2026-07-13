@@ -19,25 +19,38 @@ function parseRecipients(text, getAddress) {
   const skipped = [];
   const seen = new Set();
 
+  const re = new RegExp(ADDRESS_RE.source, "g");
+
   text.split(/\r?\n/).forEach((line, i) => {
     const lineNumber = i + 1;
     const trimmed = line.trim();
     if (trimmed === "" || trimmed.startsWith("#")) return; // 空行・コメントは無視
 
-    const match = line.match(ADDRESS_RE);
-    if (!match) {
+    const matches = trimmed.match(re);
+    if (!matches) {
       skipped.push({ lineNumber, text: trimmed, reason: "アドレスが見つかりません" });
       return;
     }
 
-    const address = getAddress(match[0].toLowerCase()); // 小文字化してから正規のチェックサムに直す
-    const key = address.toLowerCase();
-    if (seen.has(key)) {
-      skipped.push({ lineNumber, text: trimmed, reason: "重複" });
-      return;
+    for (const raw of matches) {
+      // 小文字化せずそのまま渡す: 本物の大文字小文字混在でチェックサムが
+      // 誤っている(=入力ミスの疑いが高い)場合は getAddress が throw するので拾う。
+      // 全て小文字・全て大文字の場合はチェックサム検証されず素通しで正規化される。
+      let address;
+      try {
+        address = getAddress(raw);
+      } catch {
+        skipped.push({ lineNumber, text: trimmed, reason: "チェックサム不正" });
+        continue;
+      }
+      const key = address.toLowerCase();
+      if (seen.has(key)) {
+        skipped.push({ lineNumber, text: trimmed, reason: "重複" });
+        continue;
+      }
+      seen.add(key);
+      recipients.push(address);
     }
-    seen.add(key);
-    recipients.push(address);
   });
 
   return { recipients, skipped };
