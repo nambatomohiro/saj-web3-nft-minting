@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("./tasks/handson");
+require("./tasks/distribute");
 
 // 秘密鍵は .env から(docker compose の env_file で注入される。設計書§5)。
 // MetaMask のエクスポートは 0x 無しのことがあるため、ここで補う(当日の事故防止)。

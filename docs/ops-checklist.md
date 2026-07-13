@@ -22,7 +22,11 @@
 - [ ] 提出された各アドレスへ **0.1 POL** を送付
   - **根拠（実測）**: deploy → mint → check → burn の全工程で **0.044 POL**（オプティマイザ有効・30 gwei時）。0.1 POLで2倍以上の余裕
   - 配布元POLは [faucet.polygon.technology](https://faucet.polygon.technology/) で日次取得、不足分は他のfaucet（Alchemy / QuickNode）も併用
-  - アドレスリストが揃ったら一括送付スクリプトを作れる（Claude Codeに依頼すればすぐ）
+  - **一括配布ツールあり**（`tasks/distribute.js`。設計: [spec](superpowers/specs/2026-07-13-amoy-pol-distribution-design.md)）:
+    1. Slack/Discord の提出アドレスを `distribute/recipients.txt` に1行1件で貼る（前後に日本語が混じってもOK。`distribute/` はgit管理外）
+    2. ドライランで件数・総額・原資充足を確認: `docker compose exec hardhat npm run distribute:amoy -- distribute/recipients.txt`
+    3. 問題なければ実送金: 末尾に `--execute` を付けて再実行
+    - 冪等（残高0.1 POL以上はスキップ・失敗は再実行で未達分だけ再送）。原資が足りなければ送金前に停止する
 
 ## 3. 直前（前日〜当日朝）
 

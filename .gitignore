@@ -7,3 +7,6 @@ cache/
 deployments/
 coverage/
 typechain-types/
+
+# 参加者アドレスの置き場(個人情報寄り。コミットしない)
+distribute/
