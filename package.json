@@ -14,7 +14,9 @@
     "transfer": "hardhat --network localhost transfer",
     "transfer:amoy": "hardhat --network amoy transfer",
     "burn": "hardhat --network localhost burn",
-    "burn:amoy": "hardhat --network amoy burn"
+    "burn:amoy": "hardhat --network amoy burn",
+    "distribute": "hardhat --network localhost distribute",
+    "distribute:amoy": "hardhat --network amoy distribute"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
