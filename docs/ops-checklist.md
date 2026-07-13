@@ -3,6 +3,7 @@
 > web3ビジネス研究会 第2回（2026-09-18）NFT発行ハンズオンの運営タスク。
 > 設計の背景は [設計書](superpowers/specs/2026-07-07-saj-web3-nft-minting-handson-design.md) を参照。
 > 開発作業（§4/§5/§7/§9/§10）は 2026-07-08 に完了・検証済み。残るのは本書のタスクのみ。
+> 実演デモの通し記録は [rehearsal-2026-07-13](rehearsal-2026-07-13.md)（Part3+Part4フル成功・要修正なし）。
 
 ---
 
@@ -44,7 +45,8 @@
 
 - [ ] **実演用ウォレットの残高確認**
   - リハーサル済みウォレット `0x9f289dce99B33fa168211cC0BD382663c493c9c2` が実演台の `.env` に設定済み（このリポジトリの `.env`。git管理外なのでマシンを変える場合は手動で持っていく）
-  - 2026-07-08 時点の残高 0.056 POL → 当日分として **0.15 POL程度まで補充**しておく（deploy 2回分の余裕）
+  - **⚠️ 2026-07-13 の実演リハで残高がほぼ枯渇**（1通しで −0.048 POL → 現在 **0.008 POL**。[記録](rehearsal-2026-07-13.md)）。このままでは1通しも回せない
+  - 当日リハ＋本番の2回分として **0.15 POL程度まで補充**しておく（deploy 2回分の余裕。deploy が約0.041 POLで支配的、mint+burnは約0.007 POL）
 
 ## 4. 当日
 
@@ -63,7 +65,8 @@
 ## 6. 参考リンク
 
 - 配布イメージ: https://github.com/nambatomohiro/saj-web3-nft-minting/pkgs/container/saj-nft （public）
-- リハーサルの公開記録（参加者に見せる例としても使える）:
-  - コントラクト: https://amoy.polygonscan.com/address/0x54e62C6042234A8AfE7B37353d485e89A836feb1
-  - mint: https://amoy.polygonscan.com/tx/0x521eb4464f14dd77b1e8d8843adf8822f857de407faa34140f62a1f4fd82d494
-  - burn: https://amoy.polygonscan.com/tx/0x5eeb0ce041ac990ae02a53fc94ac07bf082dab30becac807bfa02671cc5f8b0f
+- 実演リハの通し記録: [rehearsal-2026-07-13](rehearsal-2026-07-13.md)
+- リハーサルの公開記録（参加者に見せる例としても使える。最新=2026-07-13）:
+  - コントラクト: https://amoy.polygonscan.com/address/0x9bd8012439C13FD15004e5B2D9D79c43b719B7f3
+  - mint: https://amoy.polygonscan.com/tx/0xe627ca812f0125af7d3cdad8369e07fffd461bab57581d2cdaf050c439f83ffd
+  - burn: https://amoy.polygonscan.com/tx/0x1e83cdfb29de1bbca5e439b414171e4df8c1b08e7880cc5b228c2bbea5d7584d
