@@ -16,7 +16,11 @@
     "burn": "hardhat --network localhost burn",
     "burn:amoy": "hardhat --network amoy burn",
     "distribute": "hardhat --network localhost distribute",
-    "distribute:amoy": "hardhat --network amoy distribute"
+    "distribute:amoy": "hardhat --network amoy distribute",
+    "sweep": "hardhat --network localhost sweep",
+    "sweep:amoy": "hardhat --network amoy sweep",
+    "funding-status": "hardhat --network localhost funding-status",
+    "funding-status:amoy": "hardhat --network amoy funding-status"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
