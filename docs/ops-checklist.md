@@ -21,19 +21,63 @@
   - 「`docker compose pull` まで前日までに済ませる」ことを強調（当日wifiに賭けない）
 - [ ] **質問窓口を用意**（Discord / Slack 等）— 事前準備のつまずき対応
 
-## 2. POLを貯める（イベント2〜3週間前から毎日）
+## 2. POLの調達（2026-08-15 完了済み）
 
-> **⚠️ 公式faucetは廃止されました。** `faucet.polygon.technology` は停止済みで、Polygon公式ドキュメントも
-> [third-party faucetを使うよう案内](https://docs.polygon.technology/tools/gas/matic-faucet/)しています。以下は差し替え後の運用。
+> **✅ 本番の原資は確保済みです。** Polygon Labs の申請フォームで **100 POL** を取得しました
+> （[tx](https://amoy.polygonscan.com/tx/0xc116ee88eb22aca1eb09bf8a0acf6d71f406fb05ec38001f4264f31ea2831a6b)）。
+> 30人配布に必要なのは 9.5 POL なので、追加の調達作業は不要です。
 
-### 2-1. なぜ「請求用」と「貯蔵用」を分けるのか（重要）
+### 2-1. 使ったルート：Polygon Labs の Test Token Request フォーム
 
-現行faucetには**貯蔵ウォレットで直接請求できない**理由が2つあります。
+**これが唯一まともに機能する調達手段です。** 足りなくなったら、まずここに出してください。
 
-1. レート制限が**受け取りアドレス単位/24h**。→ 複数人が同じ貯蔵アドレスを宛先に指定しても、2人目以降は弾かれる
-2. **テストネット残高が多いアドレスは請求資格を失う**（Alchemyの明示ルール）。→ 貯まるほど請求できなくなる
+- フォーム: https://docs.google.com/forms/d/e/1FAIpQLSe4npoGldJknEs9EBtPaV3AS-0HTso2IuMWDCiMmLEMCx8euQ/viewform
+- **1プロジェクトあたり90日で100 POLまで、承認不要**（超過分は却下される）
+- **メインネットの残高・取引履歴の要件は一切なし。** faucetの資格審査を丸ごと回避できるのが最大の利点
 
-したがって唯一回る運用は次の形です。
+記入内容（2026-08-15 実績）:
+
+| 項目 | 記入した内容 |
+|---|---|
+| Requester Name and Telegram/Discord Id | 氏名 + Discord ID（**Telegramは必須ではない**。この欄自体がDiscordを許容している） |
+| Project ( Telegram Group name ) | プロジェクト名 + GitHubリポジトリURL（第三者が実在を確認できるものを書くと通りやすい） |
+| Token Quantity | 100 |
+| Wallet Address | 受取用アドレス |
+| Reason For Tokens | Testing Purposes |
+
+### 2-2. ⚠️ 試してダメだったもの（再挑戦しないこと）
+
+**third-party faucetは全滅でした。** 時間を溶かすので同じ道を辿り直さないでください。
+
+| faucet | 結果（2026-08-15 実測） |
+|---|---|
+| [Alchemy](https://www.alchemy.com/faucets/polygon-amoy) | ❌ **メインネットの取引履歴不足**で拒否。0.001 ETH の残高条件を満たしても通らない。必要な履歴量は非公開なので深追い禁物 |
+| [GetBlock](https://getblock.io/faucet/matic-amoy/) | ❌ 実エラーは「**at least 5 POL on mainnet**」（ページ記載の 0.005 ETH とは別物）。Polygonメインネットで実弾が必要 |
+| [Chainstack](https://faucet.chainstack.com/amoy-faucet) | ❌ 公式の推奨リストから消滅 |
+
+パターンとして、**third-party faucetは何らかの形でメインネットの実弾を要求します**（乱用対策）。1つずつ試す期待値は低いです。
+
+未検証で残るもの: 公式 `faucet.polygon.technology`（公式docsは「提供終了」と書いているがページは生きており、**実際に請求が通るかは未確認**。二次情報では0.5 POL/日・アドレス単位）、[Chainlink](https://faucets.chain.link/polygon-amoy)（0.5 POL）、[QuickNode](https://faucet.quicknode.com/polygon/amoy)、[StakePool](https://faucet.stakepool.dev.br/)。
+
+**タダで確実な代替**: Amoy の POL は無価値なテストトークンなので、**持っている人に頼めば普通に分けてくれます**。Amoyで開発している知人か、Polygon公式Discord（docsがtestnet相談先として案内している）へ。faucetを開拓するより早いです。
+
+### 2-3. 残高の確認
+
+```bash
+docker compose exec hardhat npm run funding-status:amoy
+```
+
+貯蔵ウォレットの残高・必要額・達成率・「あと何POL」を表示します。
+必要額は `0.3 POL × 人数 + 実演予備 0.5 POL`（配布ツールと同じ定数を共有しているので判定がズレません）。
+人数は `distribute/recipients.txt` があればその提出件数、無ければ想定30人で計算します。
+
+**必要量**: 参加者30人なら **9.5 POL**。
+
+### 2-4. フォールバック：協力者で貯める運用（現在は不要）
+
+フォーム申請が使えなくなった場合に備えて `tasks/collect.js` の `sweep` を残してあります。
+faucetのレート制限は**受け取りアドレス単位/24h**なので、貯蔵アドレスを宛先に指定して複数人が請求しても2人目以降は弾かれます。
+したがって唯一回る形は次のとおりです。
 
 ```
 協力者A: 請求用ウォレットA --(faucet請求)--> sweep --> ┐
@@ -42,65 +86,41 @@
 ```
 
 **受け取り側に回数制限は無い**ので、何人からでも何回でも同じ貯蔵ウォレットに集約できます。
-請求したらすぐ sweep して請求用ウォレットを空に保つことが、翌日の請求資格を維持するコツです。
+請求したらすぐ sweep して請求用ウォレットを空に保つのが、翌日の請求資格を維持するコツです。
 
-### 2-2. 現行faucetと資格要件
-
-| faucet | 配布量 | 制限 | 資格要件 |
-|---|---|---|---|
-| [Alchemy](https://www.alchemy.com/faucets/polygon-amoy) | 0.1〜0.5 POL/日（アカウント有で増額） | アドレス単位/24h | **ETHメインネットに 0.001 ETH 以上＋取引履歴** |
-| [QuickNode](https://faucet.quicknode.com/polygon/amoy) | 少量（ツイートで2倍） | アカウント単位/12h | ウォレット接続 |
-| [Chainstack](https://faucet.chainstack.com/amoy-faucet) | 0.01 POL | 24h | 0.08 ETH 以上（実質使えない） |
-
-> **ボトルネックはウォレット数ではなく「メインネットETHの実績を持つ協力者の人数」です。** 声をかける相手はここで決まります。
-> 配布量は変動するので、運用開始日に実測して本書を更新すること。
-
-### 2-3. セットアップ（協力者それぞれ・1回だけ）
-
-- [ ] 請求用ウォレットを新規作成（**貯蔵ウォレットとは別アドレス**にすること）
-- [ ] `.env` に自分の請求用ウォレットの鍵と、共通の貯蔵アドレスを設定
-
-  ```bash
-  SEMINAR_PRIVATE_KEY=<請求用ウォレットの秘密鍵>
-  TREASURY_ADDRESS=0x9f289dce99B33fa168211cC0BD382663c493c9c2   # 貯蔵=実演台=配布原資
-  ```
-
-### 2-4. 日次ルーチン（協力者それぞれ・1日1回）
-
-- [ ] faucetで請求用ウォレットへ請求（§2-2の表から。複数faucetを併用してよい）
-- [ ] 貯蔵ウォレットへ転送:
-
-  ```bash
-  docker compose exec hardhat npm run sweep:amoy              # ドライラン（金額確認）
-  docker compose exec hardhat npm run sweep:amoy -- --execute # 実送金
-  ```
-
-  ガス代の上限（21000ガス×3倍マージン）だけ残して全額送ります。残高が手数料に満たない日は
-  「送金できる残高がありません」と表示して**エラーにならず正常終了**するので、毎日同じコマンドで回せます。
-
-### 2-5. 進捗確認（主催者・随時）
+協力者それぞれが、請求用ウォレットを新規作成（**貯蔵ウォレットとは別アドレス**）して `.env` を設定し、
 
 ```bash
-docker compose exec hardhat npm run funding-status:amoy
+SEMINAR_PRIVATE_KEY=<請求用ウォレットの秘密鍵>
+TREASURY_ADDRESS=0x9f289dce99B33fa168211cC0BD382663c493c9c2   # 貯蔵=実演台=配布原資
 ```
 
-貯蔵ウォレットの残高・必要額・達成率・「あと何POL」を表示します。
-必要額は `0.1 POL × 人数 + 実演予備 0.15 POL`（配布ツールと同じ定数を共有しているので判定がズレません）。
-人数は `distribute/recipients.txt` があればその提出件数、無ければ想定30人で計算します。
+faucet請求のあと、毎日これを打ちます。
 
-**必要量の目安**: 参加者30人なら **3.15 POL**。協力者1人が0.2 POL/日で約16日、**3人体制なら約6日**で到達します。
-イベント2〜3週間前に始めれば十分な余裕があります。
+```bash
+docker compose exec hardhat npm run sweep:amoy              # ドライラン（金額確認）
+docker compose exec hardhat npm run sweep:amoy -- --execute # 実送金
+```
+
+ガス代の上限（21000ガス×3倍マージン）だけ残して全額送ります。残高が手数料に満たない日は
+「送金できる残高がありません」と表示して**エラーにならず正常終了**するので、毎日同じコマンドで回せます。
+
+> ⚠️ **普段使いのウォレットの鍵を `.env` に入れないこと。** 転送は MetaMask の「最大」ボタンでも同じことができます
+> （差はガス代 0.00063 POL のみ）。協力者に Docker とリポジトリを強制するより、そちらのほうが現実的です。
 
 ## 3. POL配布（アドレス提出の締切後）
 
-- [ ] 提出された各アドレスへ **0.1 POL** を送付
-  - **根拠（実測）**: deploy → mint → check → burn の全工程で **0.044 POL**（オプティマイザ有効・30 gwei時）。0.1 POLで2倍以上の余裕
-  - 原資は §2 で貯めた貯蔵ウォレット（＝実演台ウォレット）。`npm run funding-status:amoy` が「到達」を出してから実行する
+- [ ] 提出された各アドレスへ **0.3 POL** を送付
+  - **根拠（実測）**: deploy → mint → check → burn の全工程で 30 gwei時に **0.044 POL**。
+    ただし **2026-08-15 の実測ガスは約45.5 gwei** で、同じ1周が **約0.067 POL** になる。
+    旧値の 0.1 POL では**1周半しか回らず、デプロイをやり直した参加者がガス切れになる**ため 0.3 POL に引き上げた（約4周ぶん）
+  - 30人でも **9 POL**。§2で100 POL確保済みなので原資を切り詰める理由はない
+  - 原資は §2 の貯蔵ウォレット（＝実演台ウォレット）。`npm run funding-status:amoy` が「到達」を出してから実行する
   - **一括配布ツールあり**（`tasks/distribute.js`。設計: [spec](superpowers/specs/2026-07-13-amoy-pol-distribution-design.md)）:
     1. Slack/Discord の提出アドレスを `distribute/recipients.txt` に1行1件で貼る（前後に日本語が混じってもOK。`distribute/` はgit管理外）
     2. ドライランで件数・総額・原資充足を確認: `docker compose exec hardhat npm run distribute:amoy -- distribute/recipients.txt`
     3. 問題なければ実送金: 末尾に `--execute` を付けて再実行
-    - 冪等（残高0.1 POL以上はスキップ・失敗は再実行で未達分だけ再送）。原資が足りなければ送金前に停止する
+    - 冪等（残高0.3 POL以上はスキップ・失敗は再実行で未達分だけ再送）。原資が足りなければ送金前に停止する
 
 ## 4. 直前（前日〜当日朝）
 
@@ -123,9 +143,10 @@ docker compose exec hardhat npm run funding-status:amoy
 
 - [ ] **実演用ウォレットの残高確認**
   - リハーサル済みウォレット `0x9f289dce99B33fa168211cC0BD382663c493c9c2` が実演台の `.env` に設定済み（このリポジトリの `.env`。git管理外なのでマシンを変える場合は手動で持っていく）
-  - **⚠️ 2026-07-13 の実演リハで残高がほぼ枯渇**（1通しで −0.048 POL → 現在 **0.008 POL**。[記録](rehearsal-2026-07-13.md)）。このままでは1通しも回せない
-  - 当日リハ＋本番の2回分として **0.15 POL程度まで補充**しておく（deploy 2回分の余裕。deploy が約0.041 POLで支配的、mint+burnは約0.007 POL）
-  - この0.15 POLは §2 の貯蔵ウォレット＝実演台ウォレットなので、**§2で貯めて §3で配布した後の残り**がそのまま実演予備になる（`distribute` が0.15 POLを必ず残す設計）。`npm run funding-status:amoy` で残額を確認すること
+  - 1通しで約 −0.048 POL（30 gwei時。45.5 gwei なら約 −0.067 POL）。deploy が約0.041 POLで支配的、mint+burnは約0.007 POL
+  - 実演予備は **0.5 POL**（`RESERVE_POL`。45.5 gwei で約7通しぶん）。貯蔵ウォレット＝実演台ウォレットなので、
+    **§3で配布した後の残り**がそのまま実演予備になる（`distribute` が 0.5 POL を必ず残す設計）
+  - `npm run funding-status:amoy` で残額を確認すること。§2で100 POL確保済みなので、配布後も90 POL以上残る見込み
 
 ## 5. 当日
 

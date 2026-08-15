@@ -238,7 +238,16 @@ docker compose exec hardhat npm run burn:amoy
 
 ### Amoy を見る
 
-- ネットワーク名: `Polygon Amoy` / RPC URL: `https://rpc-amoy.polygon.technology` / チェーンID: `80002` / 通貨: `POL` / エクスプローラ: `https://amoy.polygonscan.com`
+MetaMask で **設定 → 高度な設定 → 「テストネットワークを表示」をオン**（既定では隠れています）。
+一覧に `Polygon Amoy` があれば選ぶだけです。無ければ手動で追加します。
+
+- ネットワーク名: `Polygon Amoy` / RPC URL: `https://polygon-amoy-bor-rpc.publicnode.com` / チェーンID: `80002` / 通貨: `POL` / エクスプローラ: `https://amoy.polygonscan.com`
+
+> ⚠️ 「チェーンIDを取得できませんでした」と出たら、RPC URL を `https://polygon-amoy.drpc.org` に変えて再試行してください。
+> 公式の `https://rpc-amoy.polygon.technology` は**2026-08-15時点で停止**しています（使うとこのエラーになります）。
+
+POL はネイティブ通貨なので、**トークンのインポートは不要**です。残高が0に見えるときは、ネットワークではなく
+アカウントの選択を確認してください。
 
 ---
 
