@@ -13,48 +13,137 @@ NFT（会員証の**練習台**）を自分の手で **発行 → 会員判定 �
 | スタイル | 必要なもの |
 |---|---|
 | **見るだけ** | なし。主催者の実演をスクリーンで見て理解する |
-| **追随（ハンズオン）** | Docker が動くPC。下の事前準備を済ませて、当日同じコマンドを叩く |
-| **＋ MetaMask**（任意） | 発行したNFTを見慣れたウォレットUIで見たい人だけ |
+| **追随（ハンズオン）** | Docker が動くPC と MetaMask（セミナー専用ウォレット）。下の事前準備を済ませて、当日同じコマンドを叩く |
 
 ---
 
 ## 事前準備（イベント前日までに）
 
-### 1. Docker Desktop をインストール
+上から順に実行してください。参加者向けの案内メール文面は [pre-event-email.md](docs/pre-event-email.md) にあります（内容は本節と同一）。
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)（Mac / Windows）
-- 社用PCなどで Docker Desktop が使えない場合は Podman Desktop や WSL2 上の Docker でも可
+### 1. ターミナル（コマンドライン）を開く
 
-### 2. リポジトリ取得とイメージの事前ダウンロード
+以降の作業はすべてターミナルで行います。
+
+| OS | 開き方 |
+|---|---|
+| **Windows** | スタートボタン →「PowerShell」と入力 →「Windows PowerShell」を開く |
+| **Mac** | `Command + スペース` →「ターミナル」と入力 → Enter |
+
+行頭または行末に `>` `%` `$` のいずれかが出ていればOK。これは「入力待ち」の印で、記号自体は打ち込みません。以降「実行」と書いてあるものは、コマンドを貼り付けて Enter を押すという意味です。
+
+### 2. Git をインストール
+
+教材の取得に使います。
+
+- **Windows**: [git-scm.com/download/win](https://git-scm.com/download/win) からインストーラを取得し、設定はすべて既定のまま「Next」で進めます。
+  > インストール後、**PowerShell を一度閉じて開き直してください**。開いたままだと Git を認識しません。
+- **Mac**: 下の確認コマンドを実行すると「コマンドラインデベロッパツールが必要です」というダイアログが出るので、「インストール」を押して完了を待ちます。出ない場合は [git-scm.com/download/mac](https://git-scm.com/download/mac)。
 
 ```bash
+git --version   # → git version 2.39.0 のように表示されれば成功
+```
+
+### 3. Docker Desktop をインストール
+
+教材の実行環境です。依存はイメージに焼き込み済みなので、当日その場でのインストール作業は発生しません。
+
+[Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+- **Windows**: 「Download for Windows」から取得。WSL2 に関する項目はチェックを入れたまま進めます。インストール後、**PCの再起動が必要**です。
+- **Mac**: Apple Silicon 版と Intel 版があります。リンゴマーク →「このMacについて」で、「チップ」に Apple M... とあれば Apple Silicon、「プロセッサ」に Intel とあれば Intel 版。
+- 社用PCなどで Docker Desktop が使えない場合は Podman Desktop や WSL2 上の Docker でも可
+
+インストール後は Docker Desktop を起動し、**クジラのアイコンが「Running」（緑）になるまで待ちます**。ここが Running でないと以降のコマンドはすべて失敗します。
+
+```bash
+# ターミナルを開き直してから実行
+docker --version
+docker compose version   # → 両方バージョンが表示されれば成功
+```
+
+### 4. 教材を取得し、プロジェクトフォルダへ移動
+
+ターミナルには「いまどのフォルダで作業しているか」という現在地（**カレントディレクトリ**）があります。手順5以降のコマンドはすべてプロジェクトフォルダの中で実行します。現在地が違うと、同じコマンドでもエラーになります。
+
+```bash
+# (1) 置き場所へ移動（ホームフォルダ直下。確実に存在し、迷子になりにくい）
+cd $HOME
+
+# (2) 取得して、そのフォルダの中へ入る
 git clone https://github.com/nambatomohiro/saj-web3-nft-minting.git
 cd saj-web3-nft-minting
+
+# (3) 現在地を確認
+pwd   # → 末尾が saj-web3-nft-minting になっていればOK
+```
+
+> ★**ここが最重要ポイント**
+> - これ以降のコマンドは、すべてこのフォルダの中で実行します。
+> - ターミナルを閉じて開き直すと現在地は元に戻ります。次回は `cd $HOME` → `cd saj-web3-nft-minting` で戻れます。
+> - うまくいかないときは、まず `pwd` で現在地を確認。
+
+```bash
+# (4) 実行に必要なデータを事前ダウンロード（数分〜十数分かかることがあります）
 docker compose pull   # 会場のwifiに頼らないよう、必ず事前に!
 ```
 
-### 3. 起動確認
+### 5. 起動確認
+
+プロジェクトフォルダにいることを確認してから実行します。
 
 ```bash
 docker compose up
 ```
 
-`Started HTTP and WebSocket JSON-RPC server at http://0.0.0.0:8545/` とテスト用アカウント20個が表示されれば成功です。`Ctrl+C` で止められます。
+`Started HTTP and WebSocket JSON-RPC server at http://0.0.0.0:8545/` とテスト用アカウント20個が表示されれば成功です。確認できたら `Control + C` で停止します（Mac も Command ではなく Control キー）。
 
-### 4. （Part4「Amoy」まで追随する人のみ）ウォレットの準備
+### 6. ウォレットの準備と秘密鍵の設定
 
-1. [MetaMask](https://metamask.io/) をインストール
-2. **セミナー専用ウォレットを新規作成**する
-   > ★ 普段使いのウォレット・秘密鍵は**絶対に使わない**でください。練習では秘密鍵をファイルに書くため、専用の使い捨てウォレットを使います。
-3. ウォレットの**アドレス**（`0x...`）を事前フォームで提出（主催者がテスト用POLを配布します）
-   > 提出するのはアドレスのみ。**秘密鍵は誰にも渡さない**こと（主催者も聞きません）
-4. `.env` を作成して秘密鍵を設定:
+当日は公開テストネット（Polygon Amoy）にも記録するため、ハンズオンに追随する方は全員この準備が必要です。
+
+**(1) [MetaMask](https://metamask.io/) をインストール**
+
+**(2) セミナー専用ウォレットを用意する**
+
+> ★ 普段使いのウォレット・秘密鍵は**絶対に使わない**でください。練習では秘密鍵をファイルに書くため、使い捨て前提のウォレットを使います。
+
+- **MetaMask を初めて入れる方**: インストール後の案内どおり「新しいウォレットを作成」すれば、それがそのままセミナー専用ウォレットになります。追加の作業は不要です。
+- **すでに資産の入った MetaMask をお使いの方**:
+  - *推奨* — ブラウザで新しいプロファイルを作り、そちらに MetaMask を入れて新規ウォレットを作成（普段使いと完全に分離できます）
+  - *最低ライン* — いまの MetaMask で「アカウントを追加」し、セミナー専用アカウントを1つ作成。以降の提出・設定には必ずその新しいアカウントのアドレスと秘密鍵を使います
+
+> ★ どちらの場合も、**シークレットリカバリーフレーズ（12単語）は絶対に開かない・コピーしない・誰にも見せない**でください。ファイルに書くのは「アカウント1つ分の秘密鍵」だけです。秘密鍵が漏れても被害はそのアカウント1つですが、リカバリーフレーズが漏れるとウォレットの全アカウントが失われます。
+
+**(3) アドレスをコピーして提出**
+
+ウォレットができたら、そのまま続けてアドレスを提出します（主催者がテスト用POLを配布します）。
+
+1. MetaMask 画面上部のアドレス（`0x...`）をクリックするとコピーされます（バージョンによってはアカウントのメニュー →「アカウントの詳細」に表示）
+2. Slack / Discord の提出チャンネルに、**氏名とアドレスを1行にまとめて**投稿
+
+   ```
+   山田太郎 0x1234567890abcdef1234567890abcdef12345678
+   ```
+
+> 投稿するのは**アドレスのみ**。アドレスは公開情報なのでチャンネルに貼って問題ありませんが、**秘密鍵とシークレットリカバリーフレーズは絶対に投稿しない**こと（主催者も聞きません）
+
+**(4) `.env` に秘密鍵を設定**
+
+プロジェクトフォルダにいることを確認してから実行します。
 
 ```bash
 cp .env.example .env
 ```
 
-`.env` をエディタで開き、MetaMask（アカウント詳細 → 秘密鍵のエクスポート）からコピーした秘密鍵を記入:
+作成した `.env` をエディタで開きます。`.env` は隠しファイルなので、エクスプローラーや Finder には表示されません。
+
+```bash
+notepad .env    # Windows
+open -e .env    # Mac
+```
+
+MetaMask の「アカウントの詳細 → 秘密鍵」（表記はバージョンにより異なります）からコピーした秘密鍵を記入:
 
 ```
 SEMINAR_PRIVATE_KEY=0xあなたのセミナー専用ウォレットの秘密鍵
@@ -149,7 +238,16 @@ docker compose exec hardhat npm run burn:amoy
 
 ### Amoy を見る
 
-- ネットワーク名: `Polygon Amoy` / RPC URL: `https://rpc-amoy.polygon.technology` / チェーンID: `80002` / 通貨: `POL` / エクスプローラ: `https://amoy.polygonscan.com`
+MetaMask で **設定 → 高度な設定 → 「テストネットワークを表示」をオン**（既定では隠れています）。
+一覧に `Polygon Amoy` があれば選ぶだけです。無ければ手動で追加します。
+
+- ネットワーク名: `Polygon Amoy` / RPC URL: `https://polygon-amoy-bor-rpc.publicnode.com` / チェーンID: `80002` / 通貨: `POL` / エクスプローラ: `https://amoy.polygonscan.com`
+
+> ⚠️ 「チェーンIDを取得できませんでした」と出たら、RPC URL を `https://polygon-amoy.drpc.org` に変えて再試行してください。
+> 公式の `https://rpc-amoy.polygon.technology` は**2026-08-15時点で停止**しています（使うとこのエラーになります）。
+
+POL はネイティブ通貨なので、**トークンのインポートは不要**です。残高が0に見えるときは、ネットワークではなく
+アカウントの選択を確認してください。
 
 ---
 
@@ -185,7 +283,7 @@ docker compose exec hardhat npm run burn:amoy
 | `Cannot connect to the Docker daemon` | Docker Desktop を起動してください |
 | `port is already allocated`（8545） | 8545番ポートを使う他のアプリを終了、または前回のコンテナを `docker compose down` |
 | `デプロイ記録が見つかりません` | 先に `npm run deploy`（Amoyなら `deploy:amoy`）を実行 |
-| `署名用アカウントがありません`（Amoy） | `.env` に `SEMINAR_PRIVATE_KEY` を設定（事前準備の4） |
+| `署名用アカウントがありません`（Amoy） | `.env` に `SEMINAR_PRIVATE_KEY` を設定（事前準備の6） |
 | Amoyでガス代エラー | テスト用POLが不足。主催者に声かけを |
 | 最初からやり直したい | `docker compose down` → `docker compose up -d`（ローカルチェーンは毎回まっさらに戻ります） |
 

@@ -12,6 +12,19 @@ function fail(message) {
 // 0x + 40桁hex ちょうど。直後がhexなら不採用(0x+64桁の秘密鍵の先頭40桁を誤検出しないため)。
 const ADDRESS_RE = /0x[0-9a-fA-F]{40}(?![0-9a-fA-F])/;
 
+// 配布の基準値。tasks/collect.js の funding-status も同じ値を使う
+// (「貯まった」判定と「配布できる」判定がズレないように1か所で持つ)。
+//
+// 2026-08-15 改定(旧値 0.1 / 0.15)。旧値は「30 gwei」かつ「POLが希少」という
+// 2つの前提で切り詰めた数字だったが、どちらも崩れた:
+//   - ガス実測が 45.5 gwei まで上昇し、全工程1周が 0.044 → 約0.067 POL になった。
+//     0.1 POL では1周半しか回らず、デプロイをやり直した参加者がガス切れになる。
+//   - Polygon Labs のフォーム申請で 100 POL を確保済み(ops-checklist §2)。
+//     30人に配っても 9.5 POL で、原資を切り詰める理由がなくなった。
+// ガス価格が倍(90 gwei)になっても複数周まわる値にしてある。
+const TARGET_POL = "0.3"; // 1人あたりの目標残高(45.5 gwei で約4周ぶん)
+const RESERVE_POL = "0.5"; // 実演用に原資へ残す予備(同 約7周ぶん。ops-checklist §4)
+
 // text から宛先アドレスを抽出・重複排除・チェックサム化する。
 // getAddress は ethers.getAddress 相当(単体テストのため注入する)。
 function parseRecipients(text, getAddress) {
@@ -61,8 +74,8 @@ task("distribute", "提出アドレスへテスト用POLを一括配布する(�
   .addFlag("execute", "実際に送金する(未指定ならドライラン)")
   .setAction(async ({ file, execute }, hre) => {
     const { ethers } = hre;
-    const TARGET = ethers.parseEther("0.1"); // 1人あたりの目標残高
-    const RESERVE = ethers.parseEther("0.15"); // 実演用に原資へ残す予備
+    const TARGET = ethers.parseEther(TARGET_POL); // 1人あたりの目標残高
+    const RESERVE = ethers.parseEther(RESERVE_POL); // 実演用に原資へ残す予備
     const GAS_PER_TX = 21000n; // 素の送金は21000ガス固定
 
     if (!fs.existsSync(file)) {
@@ -149,4 +162,4 @@ task("distribute", "提出アドレスへテスト用POLを一括配布する(�
     }
   });
 
-module.exports = { parseRecipients, ADDRESS_RE };
+module.exports = { parseRecipients, ADDRESS_RE, TARGET_POL, RESERVE_POL };
