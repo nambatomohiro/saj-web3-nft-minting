@@ -71,6 +71,7 @@ async function findMyToken(nft, myAddress) {
 
 task("deploy", "会員証NFT(練習台)をデプロイする").setAction(async (_, hre) => {
   const signer = await getSignerOrFail(hre);
+  await hre.run("compile");
   console.log(`🚀 SAJMemberNFT を ${hre.network.name} にデプロイ中... (deployer: ${signer.address})`);
   const nft = await hre.ethers.deployContract("SAJMemberNFT", signer);
   await nft.waitForDeployment();

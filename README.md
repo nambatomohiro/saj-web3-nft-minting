@@ -164,6 +164,8 @@ docker compose logs -f      # チェーンのログを見たいとき(Ctrl+Cで�
 
 ### コマンド一覧
 
+`deploy` と `deploy:amoy` はコントラクトを自動でコンパイルします。クローン直後も、チェーン起動後にそのまま `deploy` を実行できます。
+
 ```bash
 # ① コントラクト(NFTの発行機)をデプロイ
 docker compose exec hardhat npm run deploy
